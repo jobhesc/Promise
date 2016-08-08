@@ -58,9 +58,6 @@ public final class Promise<T> {
      * reject方法的作用是，将Promise对象的状态从“未完成”变为“失败”（即从pending变为rejected），
      * 在异步操作失败时调用，并将异步操作报出的错误，作为参数传递出去。<br/>
      * promise实例生成以后，可以用then方法分别指定resolved状态和rejected状态的回调函数
-     * @param onAction
-     * @param executor
-     * @param name
      */
     public Promise(Action<PromiseHandler<T>> onAction, Executor executor, String name){
         this(new DefaultBroken(), executor, name);
@@ -78,10 +75,16 @@ public final class Promise<T> {
         }
     }
 
+    /**
+     * @see #Promise(Action, Executor, String)
+     */
     public Promise(Action<PromiseHandler<T>> onAction, Executor executor){
         this(onAction, executor, null);
     }
 
+    /**
+     * @see #Promise(Action, Executor, String)
+     */
     public Promise(Action<PromiseHandler<T>> onAction){
         this(onAction, createDefaultExecutor());
     }
@@ -99,11 +102,6 @@ public final class Promise<T> {
      *     <li>只要所有参数的promise之中有一个被rejected，新的promise实例的状态就变成rejected，
      *     此时第一个被reject的实例的返回值，会传递给新的promise实例的回调函数</li>
      * </ul>
-     * @param executor
-     * @param promises
-     * @param name
-     * @param <T>
-     * @return
      */
     @SafeVarargs
     public static <T> Promise<List<T>> all(Executor executor, String name, final Promise<T>... promises){
@@ -137,11 +135,17 @@ public final class Promise<T> {
         return newPromise;
     }
 
+    /**
+     * @see #all(Executor, String, Promise[])
+     */
     @SafeVarargs
     public static <T> Promise<List<T>> all(Executor executor, final Promise<T>... promises){
         return all(executor, null, promises);
     }
 
+    /**
+     * @see #all(Executor, String, Promise[])
+     */
     @SafeVarargs
     public static <T> Promise<List<T>> all(final Promise<T>... promises){
         return all(createDefaultExecutor(), promises);
@@ -156,11 +160,6 @@ public final class Promise<T> {
      *     <li>只要所有参数的promise之中有一个被rejected，新的promise实例的状态就变成rejected，
      *     此时第一个被reject的实例的返回值，会传递给新的promise实例的回调函数</li>
      * </ul>
-     * @param executor
-     * @param promises
-     * @param name
-     * @param <T>
-     * @return
      */
     @SafeVarargs
     public static <T> Promise<T> race(Executor executor, String name, final Promise<T>... promises){
@@ -190,11 +189,17 @@ public final class Promise<T> {
         return newPromise;
     }
 
+    /**
+     * @see #race(Executor, String, Promise[])
+     */
     @SafeVarargs
     public static <T> Promise<T> race(Executor executor, final Promise<T>... promises){
         return race(executor, null, promises);
     }
 
+    /**
+     * @see #race(Executor, String, Promise[])
+     */
     @SafeVarargs
     public static <T> Promise<T> race(final Promise<T>... promises){
         return race(createDefaultExecutor(), promises);
@@ -225,11 +230,6 @@ public final class Promise<T> {
 
     /**
      * 把一个普通对象转成一个promise对象,状态为resolved
-     * @param executor
-     * @param name
-     * @param a
-     * @param <T>
-     * @return
      */
     public static <T> Promise<T> resolve(final T a, Executor executor, String name){
         return new Promise<>(new Action<PromiseHandler<T>>() {
@@ -246,42 +246,41 @@ public final class Promise<T> {
 
     /**
      * 生成一个空的promise实例, 状态为resolved
-     * @param executor
-     * @param <T>
-     * @return
      */
     public static <T> Promise<T> resolve(Executor executor, String name){
         return resolve(null, executor, name);
     }
 
+    /**
+     * @see #resolve(Executor, String)
+     */
     public static <T> Promise<T> resolve(String name){
         return resolve(createDefaultExecutor(), name);
     }
 
+    /**
+     * @see #resolve(Executor, String)
+     */
     public static <T> Promise<T> resolve(){
         return resolve(null);
     }
 
     /**
      * 生成一个空的promise实例,状态为rejected
-     * @param executor
-     * @param name
-     * @return
      */
     public static <T> Promise<T> reject(Executor executor, String name){
         return reject("", executor, name);
     }
 
+    /**
+     * @see #reject(String, Executor, String)
+     */
     public static <T> Promise<T> reject(final String exception){
         return reject(exception, createDefaultExecutor(), null);
     }
 
     /**
      * 生成一个promise实例,状态为rejected,异常信息为exception
-     * @param executor
-     * @param name
-     * @param exception
-     * @return
      */
     public static <T> Promise<T> reject(final String exception, Executor executor, String name){
         return new Promise<>(new Action<PromiseHandler<T>>() {
@@ -295,9 +294,6 @@ public final class Promise<T> {
     /**
      * 处理状态变化时,把构造函数调用{@link PromiseHandler#resolve(Object)}传入的值,交给参数onResolved回调函数处理,
      * onResolved回调函数需要返回一个新的promise实例
-     * @param onResolved
-     * @param <R>
-     * @return
      */
     public <R> Promise<R> thenPromise(final Function<T, Promise<R>> onResolved){
         return thenPromise(onResolved, null);
@@ -307,10 +303,6 @@ public final class Promise<T> {
      * 处理状态变化时,把构造函数调用{@link PromiseHandler#resolve(Object)}传入的值,交给参数onResolved回调函数处理,
      * 且把{@link PromiseHandler#reject(Throwable)}传入的值,交给参数onRejected处理。
      * onResolved回调函数需要返回一个新的promise实例
-     * @param onResolved
-     * @param onRejected
-     * @param <R>
-     * @return
      */
     public <R> Promise<R> thenPromise(final Function<T, Promise<R>> onResolved, final Action<Throwable> onRejected){
         final Promise<R> promise = new Promise<>(mBroken, mExecutor,
@@ -322,9 +314,6 @@ public final class Promise<T> {
     /**
      * 处理状态变化时,把构造函数调用{@link PromiseHandler#resolve(Object)}传入的值,交给参数onResolved回调函数处理,
      * onResolved回调函数返回一个普通类型对象
-     * @param onResolved
-     * @param <R>
-     * @return
      */
     public <R> Promise<R> then(final Function<T, R> onResolved){
         return then(onResolved, null);
@@ -334,10 +323,6 @@ public final class Promise<T> {
      * 处理状态变化时,把构造函数调用{@link PromiseHandler#resolve(Object)}传入的值,交给参数onResolved回调函数处理,
      * 且把{@link PromiseHandler#reject(Throwable)}传入的值,交给参数onRejected处理。
      * onResolved回调函数需要返回一个普通类型对象
-     * @param onResolved
-     * @param onRejected
-     * @param <R>
-     * @return
      */
     public <R> Promise<R> then(final Function<T, R> onResolved, final Action<Throwable> onRejected){
         final Promise<R> promise = new Promise<>(mBroken, mExecutor,
@@ -422,9 +407,6 @@ public final class Promise<T> {
 
     /**
      * 异常处理回调
-     * @param onRejected
-     * @param <R>
-     * @return
      */
     public <R> Promise<R> exception(Action<Throwable> onRejected){
         return then(null, onRejected);
@@ -434,7 +416,8 @@ public final class Promise<T> {
      * 毁约,也即结束整个promise
      */
     public void broke(){
-        mBroken.broke();
+        if(!mBroken.isBroken())
+            mBroken.broke();
     }
 
     public String getName(){
